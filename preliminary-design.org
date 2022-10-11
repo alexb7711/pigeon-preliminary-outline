@@ -1,0 +1,38 @@
+#+TITLE: Preliminary Design
+#+AUTHOR: Alexander Brown
+#+DATE: \today
+
+# Org LaTeX options
+#+OPTIONS: tex:t
+
+#+latex_header: \usepackage{amsfonts}                       % Cool math fonts
+#+latex_header: \setlength\parindent{0pt}                   % No indent for paragraphs
+
+#+MACRO: drone-name pigeon
+
+* Introduction
+This document outlines the conceptual and preliminary design considerations for the {{{drone-name}}}. The conceptual
+part will encapsulate the description of the aircraft and its intended purposes. The preliminary design is meant to
+begin to give values behind the desired descriptions. This is done in two steps:
+
+- Estimate aircraft maximum takeoff weight
+- Determine wing area and engine thrust simultaneously
+
+* Conceptual Design
+* Preliminary Design
+** Weight Buildup
+The total weight is composed of different components of the aircraft.
+
+#+begin_export latex
+\begin{equation}
+  W_{TO} = W_{PL} + W_A + W_B + W_E
+\end{equation}
+#+end_export
+
+Which are the total weight, payload weight, battery weight, and the empty weight. This can be rearranged into
+
+#+begin_export latex
+\begin{equation}
+  W_{TO} = \frac{W_{PL} + W_A}{1 - \frac{W_B}{W_{TO}} - \frac{W_E}{W_{TO}}}
+\end{equation}
+#+end_export
