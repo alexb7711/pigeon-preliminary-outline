@@ -4,22 +4,106 @@
 
 # Org LaTeX options
 #+OPTIONS: tex:t
+#+LATEX_CLASS: article
 
 #+latex_header: \usepackage{amsfonts}                       % Cool math fonts
 #+latex_header: \setlength\parindent{0pt}                   % No indent for paragraphs
 
+#+latex_header: \newcommand{\shall}{\textbf{shall }}
+
+# More document configuration
+#+begin_export latex
+\parskip 3mm                                % Set the vetical space between paragraphs
+\let\ref\autoref                            % Redifine `\ref` as `\autoref` because lazy
+#+end_export
+
 #+MACRO: drone-name pigeon
 
 * Introduction
-This document outlines the conceptual and preliminary design considerations for the {{{drone-name}}}. The conceptual
-part will encapsulate the description of the aircraft and its intended purposes. The preliminary design is meant to
-begin to give values behind the desired descriptions. This is done in two steps:
+This document outlines and documents the conceptual and preliminary design considerations for {{{drone-name}}}. The
+conceptual design is the early high-level process to establish over all needs and design goals. The preliminary design
+is used to determine features of the basic components/subsystems.
 
-- Estimate aircraft maximum takeoff weight
-- Determine wing area and engine thrust simultaneously
+The conceptual design is the first and most important phase of the system design and development process
+\cite{Sadraey2012}. Typically, the appropriate starting point is to identify the problem and the associated definitions
+of need at a conceptual level \cite{Sadraey2012}.
+
+# TODO: Add description of preliminary design
 
 * Conceptual Design
+This section is divided into a few subsections to cover each conceptual design group independent of one another. An
+early attempt of establishing a foundation describing the primary aircraft components, configuration, and classification
+is made. By the end of this section the reader should have an understanding of what the objectives are for the aircraft,
+its classification, and conceptual design features. It is also a primary objective to list other "standard" aircraft of
+similar classification and configuration to assist in defining realistic baseline requirements.
 
+** Design Goals
+This section outlines the overall baseline requirements that the aircraft shall be constrained to. Research has been
+done to get a general understanding of what the hobbyist's average system consists of. The chosen aircraft are of
+similar configuration that the {{{drone-name}}} will have. This research is summarized in [[tab:plane-configurations]].
+
+#+name: tab:plane-configurations
+#+caption: Short list of remote-controlled aircaft of similar configurations and some of their components.
+| Plane                               | Wing Span [mm] | Length [mm] | Flying Weight [g] |
+|-------------------------------------+----------------+-------------+-------------------|
+| [[https://hobbyking.com/en_us/h-king-pnf-p-51d-moonbeam-mcswine-750mm-30-v2-w-6-axis-orx-flight-stabilizer.html?queryID=6755489efab56786c964adbceb266cb9&objectID=83294&indexName=hbk_live_products_analytics][H-King (PNF) P-51D Moonbeam McSwine]] |            750 |         648 |               425 |
+| [[https://hobbyking.com/en_us/durafly-tundra-v2-pnf-green-silver-1300mm-51-sports-model-w-flaps.html?queryID=b8bcec7184e0a06c7e6227775b97f6f2&objectID=84149&indexName=hbk_live_products_analytics][Durafly Tundra V2]]                   |           1300 |         920 |              1150 |
+| [[https://hobbyking.com/en_us/h-king-arf-savage-bobber-compact-stol-airplane-1000mm.html?queryID=b8bcec7184e0a06c7e6227775b97f6f2&objectID=86688&indexName=hbk_live_products_analytics][H-King (ARF) Savage Bobber]]          |           1000 |         700 |               650 |
+| [[https://hobbyking.com/en_us/avios-pnf-grand-tundra-plus-sports-model-green-gold-epo-1700mm-67.html?queryID=b8bcec7184e0a06c7e6227775b97f6f2&objectID=84263&indexName=hbk_live_products_analytics][Avios (PNF) Grand Tundra]]            |           1700 |        1260 |               --- |
+| [[https://hobbyking.com/en_us/duraflytm-ugly-stick-v2-electric-sports-model-epo-1100mm-blue-pnf.html?queryID=b8bcec7184e0a06c7e6227775b97f6f2&objectID=85586&indexName=hbk_live_products_analytics][Durafly Ugly Stick V2]]               |           1100 |         950 |              1050 |
+| [[https://hobbyking.com/en_us/h-king-crusader-arf-30e-1200mm-47-3-stick.html?queryID=b8bcec7184e0a06c7e6227775b97f6f2&objectID=76175&indexName=hbk_live_products_analytics][H-King Crusader]]                     |           1200 |        1000 |               990 |
+|-------------------------------------+----------------+-------------+-------------------|
+
+The goals that the {{{drone-name}}} aim to achieve \shall be to give a platform for basic avionics research to be
+conducted on. Starting goals consist of having a basic remote controlled aircraft that has stable flight. Once this has
+been achieved, the desired goal is to implement autonomous components, research, and further engineering on the
+aircraft. However, before this can be achieved baseline requirements must be met.
+
+The listed remote-control aircraft can be considered "introductory" as they are budget, lightweight, and do not have a
+high flight weight (the maximum amount of weight the aircraft can sustain and still become airborne). An average weight
+of a rc-plane can be range from 1134-1588 grams (2.5-3.5 pounds). From [[tab:plane-configurations]], a lot of these aircraft
+come close to carrying double their own weight. Using these aircraft's materials and designs as inspiration should,
+theoretically at least, allow similar numbers to be met. Therefore, the {{{drone-name}}} \shall have a weight of no more
+than 11588 grams with a flying weight of 853 grams. The flight weight is the average of those in
+[[tab:plane-configurations]]. The maximum weight of any component will most likely be the power supply. Preliminary research
+of the largest battery used by the aircraft listed above is a 4500 mAh LiPo battery. These batteries have a weight of
+about 662 grams. That leaves about 191 grams for the other components such as the on board computer, actuators,
+microcontrollers, cameras, and other sensors.
+
+Preliminary research shows that an average speed of these entry level model planes range from 64 to 97 kph (40 to 60
+mph). Considering that this is a research focused aircraft, speed is not a pressing matter; however, it does correlate
+to the maximum lift force which may need to be in the upper end of the distribution to be able to accommodate increasing
+demands for weight as new components/sensors are added. As a starting point, the desired baseline speed \shall to be
+above 64 kmh.
+
+Flight time for an average rc-plane is 15-20 minutes. Considering more power will be utilized by the added electronics
+for the sensors, on board computer, and microcontrollers, flight time may be impacted by this. Therefore, the flight
+time of the {{{drone-name}}} \shall be no less than 10 minutes.
+
+** Classification
+The {{{drone-name}}} is to be a hybrid radio-controlled/autonomous aircraft system. It has no intent of modeling after
+any other real life aircraft, otherwise known as being a flying model. The radio-controlled system, as any other typical
+remote controlled aircraft, has a transmitter with the pilot operating it from the ground. The radio-controlled portion
+will be designed first along with the aircraft to ensure that the system is capable of stable flight.
+
+Once this has been achieved, the autonomous dual to the system will begin to be introduced in phases. These phases,
+subject to change, include take off, landing, collision avoidance, way point following, etc. These phases, however, do
+not account for internal engineering efforts such as software design, control design, filtering, etc. These concepts
+will be flushed out in more detail at a later date.
+
+** Primary Aircraft Components and Configuration
+The basic components of the aircraft are: wing, fuselage, horizontal tail, vertical tail, engine, and landing gear.
+These components are essential in describing the plane. A high level configuration for each is to be described. The
+terminology convention follows \cite{Sadraey2012}. The wing configuration \shall be a mono-plane, high wing, rectangular,
+and fixed wing. The tail configuration \shall be an aft tail, conventional, and fixed. The propulsion system \shall be a
+single-engine placed in front of nose, tractor, and propeller driven. The landing gear configuration \shall be a fixed
+tail gear. The fuselage configuration \shall be an unpressurized cabin where the electronic components will seat. The
+aircraft \shall be built of Expanded polypropylene (EPP) is an extremely resilient variety of foam, often used in basic
+trainers, which take considerable abuse from beginners, PLA plastic, and carbon fiber rods. The subsystem configuration
+\shall have a conventional primary control surfaces, fly-by-wire power transmission, battery will be inside the
+fuselage, and the aircraft \shall store cameras, sensors, and other electronics on board.
+
+** Components
 
 * Preliminary Design
 ** Weight Buildup
@@ -38,3 +122,7 @@ Which are the total weight, payload weight, battery weight, and the empty weight
   W_{TO} = \frac{W_{PL} + W_A}{1 - \frac{W_B}{W_{TO}} - \frac{W_E}{W_{TO}}}
 \end{equation}
 #+end_export
+
+
+\bibliographystyle{plain}
+\bibliography{main}
