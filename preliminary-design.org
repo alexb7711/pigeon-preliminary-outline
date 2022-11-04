@@ -2,6 +2,14 @@
 #+AUTHOR: Alexander Brown
 #+DATE: \today
 
+# =========================================================================================================================
+#
+# Babel properties
+#+PROPERTY: header-args:octave :session *octave*
+#+PROPERTY: header-args:octave :exports both
+
+# =========================================================================================================================
+#
 # Org LaTeX options
 #+OPTIONS: tex:t
 #+LATEX_CLASS: article
@@ -11,14 +19,20 @@
 
 #+latex_header: \newcommand{\shall}{\textbf{shall }}
 
+# =========================================================================================================================
+#
 # More document configuration
 #+begin_export latex
 \parskip 3mm                                % Set the vetical space between paragraphs
 \let\ref\autoref                            % Redifine `\ref` as `\autoref` because lazy
 #+end_export
 
+# =========================================================================================================================
+#
 #+MACRO: drone-name pigeon
 
+# =========================================================================================================================
+#
 * Introduction
 This document outlines and documents the conceptual and preliminary design considerations for {{{drone-name}}}. The
 conceptual design is the early high-level process to establish over all needs and design goals. The preliminary design
@@ -103,8 +117,6 @@ trainers, which take considerable abuse from beginners, PLA plastic, and carbon 
 \shall have a conventional primary control surfaces, fly-by-wire power transmission, battery will be inside the
 fuselage, and the aircraft \shall store cameras, sensors, and other electronics on board.
 
-** Components
-
 * Preliminary Design
 ** Weight Buildup
 The total weight is composed of different components of the aircraft.
@@ -122,6 +134,44 @@ Which are the total weight, payload weight, battery weight, and the empty weight
   W_{TO} = \frac{W_{PL} + W_A}{1 - \frac{W_B}{W_{TO}} - \frac{W_E}{W_{TO}}}
 \end{equation}
 #+end_export
+
+*** Payload weight
+Payload weight of the UAV is the net carrying capacity of the aircraft. This includes cameras sensors, camera, radar,
+etc. These values are determined by the specification sheet as well as a safety factor $Sf=1.5$.
+
+#+begin_src octave :results output
+  Sf      = 1.5;                                   # Safety factor
+  w_cam   = 50;                                    # Camera weight
+  w_lidar = 50;                                    # Lidar weight
+
+  W_pl    = Sf*(w_cam + w_lidar);                  # Payload weight
+
+  disp(W_pl);                                      # Display the payload weight
+#+end_src
+
+#+RESULTS:
+:
+: octave> octave> octave> octave> octave> 150
+
+
+
+*** Autopilot weight
+This is the weight that contributes to the flight operations of the aircraft. In the instance of the {{{drone-name}}},
+it consists of both radio systems and autopilot.
+
+#+begin_src octave :results output
+  w_pc  = 46;                                      # Onboard PC weight
+  w_mc  = 25;                                      # Microcontroller weight
+  w_rad = 27.22;                                   # Radio reciever weight
+
+  W_a   = Sf*(w_pc + w_mc + w_rad);                # Autopilot weight
+
+  disp(W_a)                                        # Display autopilot weight
+#+end_src
+
+#+RESULTS:
+:
+: octave> octave> octave> octave> octave> 147.33
 
 
 \bibliographystyle{plain}
