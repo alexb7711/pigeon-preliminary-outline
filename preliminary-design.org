@@ -5,8 +5,8 @@
 # =========================================================================================================================
 #
 # Babel properties
-#+PROPERTY: header-args:octave :session *octave*
-#+PROPERTY: header-args:octave :exports both
+
+#+PROPERTY: header-args:octave :session *octave* :results output :exports both
 
 # =========================================================================================================================
 #
@@ -139,7 +139,7 @@ Which are the total weight, payload weight, battery weight, and the empty weight
 Payload weight of the UAV is the net carrying capacity of the aircraft. This includes cameras sensors, camera, radar,
 etc. These values are determined by the specification sheet as well as a safety factor $Sf=1.5$.
 
-#+begin_src octave :results output
+#+begin_src octave
   Sf      = 1.5;                                   # Safety factor
   w_cam   = 50;                                    # Camera weight
   w_lidar = 50;                                    # Lidar weight
@@ -149,30 +149,68 @@ etc. These values are determined by the specification sheet as well as a safety 
   disp(W_pl);                                      # Display the payload weight
 #+end_src
 
-#+RESULTS:
+#+RESULTS[c179f8aa6fd00358a29e85b71e9c40cb024e4001]:
 :
 : octave> octave> octave> octave> octave> 150
 
-
-
 *** Autopilot weight
 This is the weight that contributes to the flight operations of the aircraft. In the instance of the {{{drone-name}}},
-it consists of both radio systems and autopilot.
+it consists of both radio systems and autopilot. The mass of the inertial measurement unit (IMU) devices are very small
+relative to the other autopilot pieces. These include sensors such as altimeter, GPS, gyroscope/accelerometer.
 
-#+begin_src octave :results output
+#+begin_src octave
   w_pc  = 46;                                      # Onboard PC weight
   w_mc  = 25;                                      # Microcontroller weight
   w_rad = 27.22;                                   # Radio reciever weight
+  w_imu = 50;                                      # IMU weights
 
-  W_a   = Sf*(w_pc + w_mc + w_rad);                # Autopilot weight
+  W_a   = Sf*(w_pc + w_mc + w_rad + w_imu);        # Autopilot weight
 
-  disp(W_a)                                        # Display autopilot weight
+  disp(W_a);                                       # Display autopilot weight
+#+end_src
+
+#+RESULTS[a80eb0f06022fde0a410cfc44c6db547964f19f8]:
+:
+: octave> octave> octave> octave> octave> octave> 222.33
+
+*** Battery Weight
+The {{{drone-name}}} is a battery-driven aircraft. The battery weight is a major contributor to the weight buildup of
+the aircraft. \cite{Sadraey2012} shows that for a propeller-driven aircraft, its battery weight ratio can be written as
+show in [[eq:battery-weight-ratio]]. $g$ is the gravity constant, $\eta_P$ is the propeller efficiency, $E_D$ energy density
+of the battery, $R$ is the desired range, $C_L$ is the cruise lift coefficient, and $C_D$ is the drag due to the
+aircraft configuration.
+
+#+name: eq:battery-weight-ratio
+#+begin_export latex
+\begin{equation}
+\label{eq:battery-weight-ratio}
+  W_B = 1.05 \Big( \frac{g}{\eta_P E_D} \frac{R}{C_L / C_D} \Big)
+\end{equation}
+#+end_export
+
+The propeller efficiency has typical values ranging from 0.6 through 0.8. For the sake of adding safety factors in the
+design, the low end of the efficiency shall be used. The range can be determined from [[eq:cruise-time]]. $V_C$ denotes the
+cruising velocity. Average starter RC aircraft velocities rage from 64 to 97 kph. Solving for $R$ is simple, and we have
+defined the flight time to be about 10 minutes. The output of [[octave:range]] calculates the estimated range.
+
+#+name: eq:cruise-time
+#+begin_export latex
+\begin{equation}
+\label{eq:cruise-time}
+  t_C = \frac{R}{V_C}
+\end{equation}
+#+end_export
+
+#+name: octave:range
+#+begin_src octave
+  R = (10) * (64 * (1000/60));                     # min * m/min
+
+  disp(R);
 #+end_src
 
 #+RESULTS:
 :
-: octave> octave> octave> octave> octave> 147.33
-
+: octave> 1.0667e+04
 
 \bibliographystyle{plain}
 \bibliography{main}
