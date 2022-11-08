@@ -3,14 +3,13 @@
 #+DATE: \today
 
 # =========================================================================================================================
-#
 # Babel properties
 
 #+PROPERTY: header-args:octave :session *octave* :results output :exports both
 
 # =========================================================================================================================
-#
 # Org LaTeX options
+
 #+OPTIONS: tex:t
 #+LATEX_CLASS: article
 
@@ -20,8 +19,8 @@
 #+latex_header: \newcommand{\shall}{\textbf{shall }}
 
 # =========================================================================================================================
-#
 # More document configuration
+
 #+begin_export latex
 \parskip 3mm                                % Set the vetical space between paragraphs
 \let\ref\autoref                            % Redifine `\ref` as `\autoref` because lazy
@@ -203,14 +202,42 @@ defined the flight time to be about 10 minutes. The output of [[octave:range]] c
 
 #+name: octave:range
 #+begin_src octave
-  R = (10) * (64 * (1000/60));                     # min * m/min
+  R = (10) * (64 * (1000/60))                      # min * m/min
+#+end_src
 
-  disp(R);
+#+RESULTS: octave:range
+: R = 1.0667e+0b4
+
+#+begin_src octave
+  C_D = 0.03                                      # Zero-lift drag coefficient
+                                                  # - fixed landing gear
+  C_L = 1.2                                       # Maximim lift coefficient
 #+end_src
 
 #+RESULTS:
-:
-: octave> 1.0667e+04
+: C_D = 0.030000
+: octave> C_L = 1.2000
 
-\bibliographystyle{plain}
+#+begin_src octave
+  eta_p = 0.6                                      # Propeller efficiency
+#+end_src
+
+#+RESULTS:
+: eta_p = 0.6000
+
+#+begin_src octave
+  g = 9.81                                         # m/s^2
+#+end_src
+
+#+RESULTS:
+: g = 9.8100
+
+#+begin_src octave
+  W_B = 1.05*(g*R)/(eta_p*E_D* (C_L / C_D))
+#+end_src
+
+#+RESULTS:
+: error: 'E_D' undefined near line 1, column 25
+
+\Bibliographystyle{plain}
 \bibliography{main}
