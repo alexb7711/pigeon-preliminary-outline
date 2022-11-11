@@ -51,6 +51,9 @@ its classification, and conceptual design features. It is also a primary objecti
 similar classification and configuration to assist in defining realistic baseline requirements.
 
 ** Design Goals
+:PROPERTIES:
+:CUSTOM_ID: sec:design-goals
+:END:
 This section outlines the overall baseline requirements that the aircraft shall be constrained to. Research has been
 done to get a general understanding of what the hobbyist's average system consists of. The chosen aircraft are of
 similar configuration that the {{{drone-name}}} will have. This research is summarized in [[tab:plane-configurations]].
@@ -80,7 +83,7 @@ theoretically at least, allow similar numbers to be met. Therefore, the {{{drone
 than 11588 grams with a flying weight of 853 grams. The flight weight is the average of those in
 [[tab:plane-configurations]]. The maximum weight of any component will most likely be the power supply. Preliminary research
 of the largest battery used by the aircraft listed above is a 4500 mAh LiPo battery. These batteries have a weight of
-about 662 grams. That leaves about 191 grams for the other components such as the on board computer, actuators,
+about 662 grams. That leaves about 191 grams for the other components such as the on-board computer, actuators,
 microcontrollers, cameras, and other sensors.
 
 Preliminary research shows that an average speed of these entry level model planes range from 64 to 97 kph (40 to 60
@@ -180,6 +183,7 @@ of the battery, $R$ is the desired range, $C_L$ is the cruise lift coefficient, 
 aircraft configuration.
 
 #+name: eq:battery-weight-ratio
+#+caption: Estimation of the battery to weight ration
 #+begin_export latex
 \begin{equation}
 \label{eq:battery-weight-ratio}
@@ -188,9 +192,27 @@ aircraft configuration.
 #+end_export
 
 The propeller efficiency has typical values ranging from 0.6 through 0.8. For the sake of adding safety factors in the
-design, the low end of the efficiency shall be used. The range can be determined from [[eq:cruise-time]]. $V_C$ denotes the
-cruising velocity. Average starter RC aircraft velocities rage from 64 to 97 kph. Solving for $R$ is simple, and we have
-defined the flight time to be about 10 minutes. The output of [[octave:range]] calculates the estimated range.
+design, the low END of the efficiency shall be used. These values can be seen in [[octave:drag-coefficients]]. The range can
+be determined from [[eq:cruise-time]]. $V_C$ denotes the cruising velocity. Preliminary research shows that average starter
+RC aircraft velocities rage from 64 to 97 kph. Solving for $R$ is simple, and we have defined the flight time to be
+about 10 minutes. The output of [[octave:range]] calculates the estimated range. The propeller efficiency is show in
+[[octave:prop-efficiency]] which is taken from \cite{Sadraey2012}. The gravity constant is introduced in [[octave:gravity]].
+[[octave:energy-density]] shows the calculation of the battery's estimated energy density. To calculate this value, it is
+assumed that the flight time from the design requirement in [[#sec:design-goals]]. Using the ampere-hour rating, dividing it
+by the design flight time gives the estimated current from the battery. This current is used to estimate the power
+output of the battery so that the energy density can be estimated. The weight of the battery can then be estimated using
+the calculation in [[octave:battery-weight]]. The estimate shows that the battery will be about 10% of the aircraft's total
+weight.
+
+#+name: octave:drag-coefficients
+#+caption: Common drag and lift coefficients used in preliminary design.
+#+begin_src octave
+   C_D = 0.03;                                     # Zero-lift drag coefficient: fixed landing gear
+   C_L = 1.2;                                      # Maximim lift coefficient
+#+end_src
+
+#+RESULTS: octave:drag-coefficients
+
 
 #+name: eq:cruise-time
 #+begin_export latex
@@ -201,43 +223,57 @@ defined the flight time to be about 10 minutes. The output of [[octave:range]] c
 #+end_export
 
 #+name: octave:range
+#+caption: Rane calculation for the {{{drone-name}}}.
 #+begin_src octave
   R = (10) * (64 * (1000/60))                      # min * m/min
 #+end_src
 
 #+RESULTS: octave:range
-: R = 1.0667e+0b4
+: R = 1.0667e+04
 
+
+#+name: octave:prop-efficiency
+#+caption: Propeller efficiency estimate.
 #+begin_src octave
-  C_D = 0.03                                      # Zero-lift drag coefficient
-                                                  # - fixed landing gear
-  C_L = 1.2                                       # Maximim lift coefficient
+  eta_p = 0.6;                                     # Propeller efficiency
 #+end_src
 
-#+RESULTS:
-: C_D = 0.030000
-: octave> C_L = 1.2000
+#+RESULTS: octave:prop-efficiency
 
+
+#+name: octave:gravity
+#+caption: Gravity constant.
 #+begin_src octave
-  eta_p = 0.6                                      # Propeller efficiency
+  g = 9.81;                                        # m/s^2
 #+end_src
 
-#+RESULTS:
-: eta_p = 0.6000
+#+RESULTS: octave:gravity
 
+
+#+name: octave:energy-density
+#+caption: Calculation of the estimate for the battery energy density.
 #+begin_src octave
-  g = 9.81                                         # m/s^2
+  i_b = 4500 / (10) / (1/60) * 0.001;              # A
+  P_b = 2.2 * i_b;                                 # v
+  m_b = 745 * 0.001;                               # kg
+  t_s = 10 / 60;                                   # s
+  E_D = P_b*t_s/(m_b)
 #+end_src
 
-#+RESULTS:
-: g = 9.8100
+#+RESULTS: octave:energy-density
+:
+: octave> octave> octave> E_D = 13.289
 
+
+#+name: octave:battery-weight
+#+caption: Estimate of the battery weight.
 #+begin_src octave
-  W_B = 1.05*(g*R)/(eta_p*E_D* (C_L / C_D))
+  W_B = 1.05*((g/(eta_p*E_D*3600)) * (R/(C_L/C_D)))
 #+end_src
 
-#+RESULTS:
-: error: 'E_D' undefined near line 1, column 25
+#+RESULTS: octave:battery-weight
+: W_B = 0.095696
 
-\Bibliographystyle{plain}
+
+\bibliographystyle{plain}
 \bibliography{main}
