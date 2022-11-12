@@ -129,10 +129,13 @@ The total weight is composed of different components of the aircraft.
 \end{equation}
 #+end_export
 
-Which are the total weight, payload weight, battery weight, and the empty weight. This can be rearranged into
+Which are the total weight, payload weight, battery weight, and the empty weight. This can be rearranged into the form
+of [[eq:total-weight]].
 
+#+name: eq:total-weight
 #+begin_export latex
 \begin{equation}
+ \label{eq:total-weight}
   W_{TO} = \frac{W_{PL} + W_A}{1 - \frac{W_B}{W_{TO}} - \frac{W_E}{W_{TO}}}
 \end{equation}
 #+end_export
@@ -146,14 +149,15 @@ etc. These values are determined by the specification sheet as well as a safety 
   w_cam   = 50;                                    # Camera weight
   w_lidar = 50;                                    # Lidar weight
 
-  W_pl    = Sf*(w_cam + w_lidar);                  # Payload weight
+  global W_PL;
+  W_PL    = Sf*(w_cam + w_lidar);                  # Payload weight
 
-  disp(W_pl);                                      # Display the payload weight
+  disp(W_PL);                                      # Display the payload weight
 #+end_src
 
 #+RESULTS[c179f8aa6fd00358a29e85b71e9c40cb024e4001]:
 :
-: octave> octave> octave> octave> octave> 150
+: octave> octave> octave> octave> octave> octave> octave> 150
 
 *** Autopilot weight
 This is the weight that contributes to the flight operations of the aircraft. In the instance of the {{{drone-name}}},
@@ -166,14 +170,13 @@ relative to the other autopilot pieces. These include sensors such as altimeter,
   w_rad = 27.22;                                   # Radio reciever weight
   w_imu = 50;                                      # IMU weights
 
-  W_a   = Sf*(w_pc + w_mc + w_rad + w_imu);        # Autopilot weight
-
-  disp(W_a);                                       # Display autopilot weight
+  global W_A;
+  W_A   = Sf*(w_pc + w_mc + w_rad + w_imu)         # Autopilot weight
 #+end_src
 
 #+RESULTS[a80eb0f06022fde0a410cfc44c6db547964f19f8]:
 :
-: octave> octave> octave> octave> octave> octave> 222.33
+: octave> octave> octave> octave> octave> W_A = 222.33
 
 *** Battery Weight
 The {{{drone-name}}} is a battery-driven aircraft. The battery weight is a major contributor to the weight buildup of
@@ -207,8 +210,11 @@ weight.
 #+name: octave:drag-coefficients
 #+caption: Common drag and lift coefficients used in preliminary design.
 #+begin_src octave
-   C_D = 0.03;                                     # Zero-lift drag coefficient: fixed landing gear
-   C_L = 1.2;                                      # Maximim lift coefficient
+  global C_D;
+  global C_L;
+
+  C_D = 0.03;                              # Zero-lift drag coefficient: fixed landing gear
+  C_L = 1.2;                               # Maximim lift coefficient
 #+end_src
 
 #+RESULTS: octave:drag-coefficients
@@ -268,12 +274,76 @@ weight.
 #+name: octave:battery-weight
 #+caption: Estimate of the battery weight.
 #+begin_src octave
+  global W_B;
   W_B = 1.05*((g/(eta_p*E_D*3600)) * (R/(C_L/C_D)))
 #+end_src
 
 #+RESULTS: octave:battery-weight
+:
 : W_B = 0.095696
 
+*** Empty Weight
+The empty weight fraction in mainly the weight that includes the structure/airframe, engines, landing gear, and systems.
+Because the aircraft to this point has only bees designed conceptually, there is no geometry, sizing, or material.
+According to \cite{Sadraey2012}, the empty weight fraction can vary from 0.5 to 0.9. The empty weight fraction can be
+mathematically modeled by [[eq:empty-weight]],
+
+#+name: eq:empty-weight
+#+begin_export latex
+\begin{equation}
+  \label{eq:empty-weight}
+  \frac{W_E}{W_{TO}} = a W_{TO} + b
+\end{equation}
+#+end_export
+
+The coefficients, $a$ and $b$, vary based on the different UV types. In the case of small RC vehicles the values are as
+defined in [[octave:weight-coeff]]. The equation [[eq:empty-weight]] and coefficients in [[octave:weight-coeff]] are based of
+British units, therefore the values calculated must be converted
+
+#+name: octave:weight-coeff
+#+begin_src octave
+  global a_em;
+  global b_em;
+
+  a_em = -0.0029;
+  b_em = 0.87;
+#+end_src
+
+#+RESULTS: octave:weight-coeff
+
+Noting the form of [[eq:empty-weight]], $W_{TO}$ is on both sides of the equation [[eq:total-weight]]. These result in a set of
+nonlinear equations. The solution of these is shown in [[octave:nonlinear-weight]].
+
+#+name: octave:nonlinear-weight
+#+caption: Solution of the total weight of the aircraft.
+#+begin_src octave
+  function y = f(x)
+  global W_PL;
+  global W_A;
+  global W_B;
+  global a_em;
+  global b_em;
+
+  # Gram to pound
+  g_to_lb = 0.002204623;
+
+  # Convert all weights
+  w_pl = W_PL * g_to_lb;
+  w_a  = W_A  * g_to_lb;
+  w_b  = W_B  * g_to_lb;
+
+  # Equation
+  y = 0;
+  y = (w_pl + w_a)/(1 - (w_b) - (a_em*x + b_em)) - x; # lb
+  endfunction
+
+  [x, fval, info] = fsolve (@f, 0);
+  x *= 453.5924                                       # g
+#+end_src
+
+#+RESULTS: octave:nonlinear-weight
+:
+: > > > > > > > > > > > > > > > > > octave> octave> octave> x = 2548.7
 
 \bibliographystyle{plain}
 \bibliography{main}

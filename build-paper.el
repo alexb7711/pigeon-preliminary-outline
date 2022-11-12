@@ -41,6 +41,7 @@
              :publishing-function  'org-latex-publish-to-pdf)))
 
 (setq
+ org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")
  org-export-headline-levels   5                                                 ; Max level that `org' will export a
                                                                                 ; header to LaTeX
  org-latex-prefer-user-labels 1)                                                ; Use user labels, not gereated ones

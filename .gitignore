@@ -1,3 +1,5 @@
 *.dvi
 *.tex
 preliminary-design.bbl
+octave-workspace
+preliminary-design.tex~
