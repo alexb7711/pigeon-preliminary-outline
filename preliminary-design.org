@@ -14,6 +14,7 @@
 #+LATEX_CLASS: article
 
 #+latex_header: \usepackage{amsfonts}                       % Cool math fonts
+#+latex_header: \usepackage{amsmath}                        % Maths
 #+latex_header: \setlength\parindent{0pt}                   % No indent for paragraphs
 
 #+latex_header: \newcommand{\shall}{\textbf{shall }}
@@ -44,6 +45,9 @@ of need at a conceptual level \cite{Sadraey2012}.
 # TODO: Add description of preliminary design
 
 * Conceptual Design
+:PROPERTIES:
+:CUSTOM_ID: sec:conceputual-design
+:END:
 This section is divided into a few subsections to cover each conceptual design group independent of one another. An
 early attempt of establishing a foundation describing the primary aircraft components, configuration, and classification
 is made. By the end of this section the reader should have an understanding of what the objectives are for the aircraft,
@@ -117,8 +121,7 @@ tail gear. The fuselage configuration \shall be an unpressurized cabin where the
 aircraft \shall be built of Expanded polypropylene (EPP) is an extremely resilient variety of foam, often used in basic
 trainers, which take considerable abuse from beginners, PLA plastic, and carbon fiber rods. The subsystem configuration
 \shall have a conventional primary control surfaces, fly-by-wire power transmission, battery will be inside the
-fuselage, and the aircraft \shall store cameras, sensors, and other electronics on board.
-
+fuselage, and the aircraft \shall store cameras, sensors, and other electronics on
 * Preliminary Design
 ** Weight Buildup
 The total weight is composed of different components of the aircraft.
@@ -301,6 +304,7 @@ defined in [[octave:weight-coeff]]. The equation [[eq:empty-weight]] and coeffic
 British units, therefore the values calculated must be converted
 
 #+name: octave:weight-coeff
+#+caption: Weight coefficients of RC aircraft.
 #+begin_src octave
   global a_em;
   global b_em;
@@ -312,7 +316,8 @@ British units, therefore the values calculated must be converted
 #+RESULTS: octave:weight-coeff
 
 Noting the form of [[eq:empty-weight]], $W_{TO}$ is on both sides of the equation [[eq:total-weight]]. These result in a set of
-nonlinear equations. The solution of these is shown in [[octave:nonlinear-weight]].
+nonlinear equations. The solution of these is shown in [[octave:nonlinear-weight]]. The result shows that $W_{TO} = 2548.7$
+grams.
 
 #+name: octave:nonlinear-weight
 #+caption: Solution of the total weight of the aircraft.
@@ -344,6 +349,65 @@ nonlinear equations. The solution of these is shown in [[octave:nonlinear-weight
 #+RESULTS: octave:nonlinear-weight
 :
 : > > > > > > > > > > > > > > > > > octave> octave> octave> x = 2548.7
+
+** Wing and Engine Sizing
+This phase of the preliminary design is used to determine the wing reference area, $S_{ref}$, and engine thrust, $T$.
+Unlike determining the weight buildup, which heavily relied on statistics, this phase is solely based on the specified
+aircraft performance requirements and flight mechanics theory. The technique used is called "Matching Plot", which was
+initially developed by NASA \cite{Sadraey2012}. \\
+
+# The extra \\ is needed in the line above for some reason for appropriate paragraph spacing
+
+The aircraft performance requirements that are utilized to size the aircraft in this phase are defined in
+[[tab:sizing-vars]]. The stall speed is the minimum speed at which an airplane must fly to produce lift. The maximum speed
+is the fastest that the aircraft can, theoretically, travel. Max rate of climb is the theoretical maximum climb rate.
+The ceiling in the highest altitude that the aircraft may fly and produce enough lift to sustain its weight.
+
+#+NAME: tab:sizing-vars
+#+caption: Performance requirement variables and description.
+| *Variable*  | *Meaning*         |
+|-------------+-------------------|
+| $V_s$       | stall speed       |
+| $V_{max}$   | max speed         |
+| $ROC_{max}$ | max rate of climb |
+| $S_{TO}$    | takeoff run       |
+| $h_c$       | ceiling           |
+
+The Matching Plot technique is performed in six steps
+
+1. Derive one equation for each aircraft performance requirement ($W/P$ or $T/W$ as a function of $W/S$)
+2. Sketch all derived equations in one plot
+3. Identify the acceptable region inside the regions that are produced by the axes and the graphs. Determine the design
+   point (i.e., the optimum selection)
+4. From the design point, obtain two numbers; corresponding wing loading; $(W/S)_d$ and corresponding power loading;
+   $(W/P)_d$
+5. Calculate the wing area and engine thrust from these two values, since the aircraft maximum takeoff weight $W_{TO}$
+   has been previously determined in [[octave:nonlinear-weight]].
+
+A "typical" plot for a propeller driven UAV is shown in [[fig:match-plot]]. The equations of interest are outlined in
+[[eq:match-plot-eqs]]. Each equation plots $W/P$ as a function of $W/S$. The first equation plots the stall speeds, the
+second plots the maximum speed, the third plots the takeoff run distance, the fourth plots the rate of climb, and the
+final equation plots the ceiling. Let $K$ be the induced drag factor, $\eta_p$ be the propeller efficiency, $C_{DG}$ be the
+UAV drag coefficient at the ground, $\mu$ be the runway friction coefficient, $\sigma$ be the air density ration, and
+$(L/D)_{max}$ denotes the maximum lift to drag ratio \cite{Sadraey2012}.
+
+#+name: eq:match-plot-eqs
+#+caption: Equations used to create the matching plot
+#+begin_export latex
+\begin{equation}
+\begin{array}{r|ll}
+\text{Stall}         & \Big( \frac{W}{S} \Big)_{V_s}          & = \frac{1}{2}\rho V_s^2 C_{L_{max}}                                                                                                                     \\
+\text{Maximum speed} & \Big( \frac{W}{P_{SL}} \Big)_{V_{max}} & = \frac{\eta_P}{\frac{1}{2} \rho_o V_{max}^3 C_{D_o} \frac{1}{ \frac{W}{S} } + \frac{2K}{\rho \sigma V_{max}} \frac{W}{S} }                                        \\
+\text{Takeoff Run}   & \Big( \frac{W}{P} \Big)_{S_{TO}}       & = \frac{1-\text{exp}(0.6 \rho g C_{D_G} S_{TO} \frac{1}{W/S} )}{\mu - (\mu + \frac{C_{D_G}}{C_{L_R}}) [exp(0.6 \rho g C_{D_G} S_{TO} \frac{1}{W/S})]^{V_{TO}}} \\
+\text{Rate of Climb} & \Big( \frac{W}{P} \Big)_{ROC}          & = \frac{1}{\frac{ROC}{\eta_p} + \sqrt{ \frac{2}{\rho \sqrt{\frac{3C_{D_o}}{K}}} \frac{W}{S} } \big(\frac{1.155}{(L/D)_{max} \eta_p}\big)}                     \\
+\text{Ceiling}       & \Big( \frac{W}{P_{SL}} \Big)_{C}       & = \frac{\sigma_C}{\frac{ROC_C}{\eta_p} + \sqrt{\frac{2}{\rho_c \sqrt{\frac{3C_{D_o}}{K}}} \frac{W}{S}} \big( \frac{1.155}{(L/D)_{max} \eta_p} \big)}               \\
+\end{array}
+\end{equation}
+#+end_export
+
+#+name: fig:match-plot
+#+caption: Matching plot for a prop-driven fixed-wing UAV
+[[./img/match-plot.png]]
 
 \bibliographystyle{plain}
 \bibliography{main}
