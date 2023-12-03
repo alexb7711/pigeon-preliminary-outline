@@ -17,7 +17,7 @@ IMG     = img
 # FILES
 ##==============================================================================
 DOC_SRC         = main.tex
-TARGET          = pigeon.pdf
+TARGET          = preliminary-design.pdf
 ALL             = $(shell find . -type f -name "*.org")
 FIGURES_TEX     = $(wildcard img/*tex)
 FIGURES_PDF     = $(patsubst %.tex, %.pdf, $(FIGURES_TEX))
