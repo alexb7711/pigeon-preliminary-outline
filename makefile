@@ -49,7 +49,7 @@ emacs: $(ALL)
 
 ##------------------------------------------------------------------------------
 #
-images: $(FIGURES_PDF) logo1.eps ## Generate all the images for the project
+images: $(FIGURES_PDF) ## Generate all the images for the project
 
 ##------------------------------------------------------------------------------
 # Resources:
@@ -101,12 +101,3 @@ help:  ## Auto-generated help menu
 #
 precheck: ## Ensures all the required software is installed
 	@$(SHELL) -e $(SCRIPTS)/check-packages
-	@epspdf -v>/dev/null 2>&1 || ep2pdf -v>/dev/null 2>&1 && \
-	echo "EPS converter installed!" ||                       \
-	(echo "Warning: no EPS converter installed"; exit 1)
-
-##------------------------------------------------------------------------------
-#
-%.eps: %.pdf ## Convert eps file to PDF
-	@epspdf -v>/dev/null 2>&1 && epspdf $< || eps2pdf $<
-	@mv $< logo1-eps-converted-to.pdf
